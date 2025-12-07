@@ -12,3 +12,24 @@ Step 2. Pick up tickets related to backend architecture.
 Step 3. ML-component in C++
 Step 4. Client-side stuff
 
+--- 
+Read this cool article on managing game states and game engine:
+http://gamedevgeek.com/tutorials/managing-game-states-in-c/
+
+So I'm going to implement something similar, states to consider:
+1. Start Game
+2. Move:
+    a. Select Piece
+    b. Select Destination
+3. Switch Player
+4. Check Game Conditions
+5. End Game
+
+00000000  00000000
+00000000  00000000
+00000000  00000000
+00000000  00000000
+00000000  00000000
+00000000  00100000
+00000000  00000000
+01000000  00000000
