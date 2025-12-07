@@ -4,4 +4,5 @@ add_executable(chess)
 target_sources(chess
   PRIVATE
     src/main.cpp
+    src/boards/board.cpp
 )
