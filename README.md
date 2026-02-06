@@ -25,6 +25,10 @@ So I'm going to implement something similar, states to consider:
 
 # Build
 
+Oh also for some reason I forget that for compiling these cpp files use g++, and if I remember correctly it was gcc for just regular c files.. 
+
+There is also this lore to the gcc people think its called the GNU C Compiler but I'm pretty sure it changed to GNU Compiler Collection because of this absolutely radical invention called the linker which is the reason why you can have language agnostic projects and use modules written in different programming languages in the same individual server or application.
+
 Must have CMake installed, run `cmake --build build`
 
 ## Cool Architecture Idea that I disregarded to collapse the complexity of this project
