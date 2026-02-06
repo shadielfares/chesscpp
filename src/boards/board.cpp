@@ -1,4 +1,10 @@
 #include <iostream>
+/*
+ * This module uses Layout #2 in the following site: https://gekomad.github.io/Cinnamon/BitboardCalculator/
+ * We use this layout due to the natural order of Little Endian Mapping or LSB mapping
+ * This is wherw a < h and 0 < 7
+ */
+
 uint64_t w_pawn_board = 0xff00;
 uint64_t b_pawn_board = 0xff000000000000;
 
