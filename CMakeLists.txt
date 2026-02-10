@@ -6,4 +6,5 @@ target_sources(chess
   PRIVATE
     src/main.cpp
     src/boards/board.cpp
+    src/pieces/pawn.cpp
 )
