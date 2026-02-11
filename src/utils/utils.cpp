@@ -14,4 +14,5 @@ void printBoard(uint64_t bitboard) {
     }
     cout << endl;
   }
+  cout << '\n';
 };
