@@ -1,5 +1,11 @@
 # chess-
 
+## disclaimer: use of ai in this project
+
+this project was a passionate project of mine and i wanted to maximize learning value. use of ai was used only in cmake config and in commenting, no real source code or business logic as been written by any ai tools.
+
+additionally, whenever i was super lossed I would ask gpt for some help but no code snippets were copied from its generation.
+
 i want to build this funny chess game in c++, no ai used for this project at all, every single line will be written by me from scratch.
 
 some libraries we're using:
@@ -37,6 +43,7 @@ Must have CMake installed, run `cmake --build build`
     `cmake -B build / cmake --build build`
 - Run Tests
     `ctest --test-dir build`
+    `cmake -B build; ./build/chess_tests`
 
 
 ## Cool Architecture Idea that I disregarded to collapse the complexity of this project
