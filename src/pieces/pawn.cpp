@@ -2,6 +2,7 @@
 #include <cstdint>
 #include <vector>
 using namespace std;
+
 /*
  * For Pawns you only have the following valid move types:
  * 1. Advance 1 Tile
@@ -26,8 +27,9 @@ struct MoveInfo {
 
 /*
  * @param uint64_t board is the occupied board of all pieces
- * @param uint64_t pawn_board
+ * @param uint64_t pawn_board (black pawn_board or white pawn_board)
  * @param bool white_to_move playing side ( 0 | 1 ), 1 is true
+ * @returns {single_advance_moves, double_advance_moves}
  */
 vector<uint64_t> pawn_move_generator(uint64_t board, uint64_t pawn_board,
                                      bool white_to_move) {
@@ -52,3 +54,15 @@ vector<uint64_t> pawn_move_generator(uint64_t board, uint64_t pawn_board,
   }
   return {single_advance_moves, double_advance_moves};
 };
+
+vector<uint64_t> pawn_capture_generator(uint64_t enemy_board, uint64_t pawn_board, bool white_to_move) {
+  uint64_t valid_left_captures, valid_right_captures;
+  if (white_to_move) {
+    valid_right_captures = ((pawn_board & ~file_a) << 7) & enemy_board;
+    valid_left_captures = ((pawn_board & ~file_h) << 9) & enemy_board;
+  } else {
+    valid_right_captures = ((pawn_board & ~file_h) >> 7) & enemy_board;
+    valid_left_captures = ((pawn_board & ~file_a) >> 9) & enemy_board;
+  }
+  return {valid_left_captures, valid_right_captures};
+}
