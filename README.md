@@ -1,5 +1,9 @@
 # chess-
 
+Case:
+PascalCase for classes
+snake_case for functions
+
 ## disclaimer: use of ai in this project
 
 this project was a passionate project of mine and i wanted to maximize learning value. use of ai was used only in cmake config and in commenting, no real source code or business logic as been written by any ai tools.
