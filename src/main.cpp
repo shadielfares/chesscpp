@@ -21,9 +21,9 @@ int main() {
   uint64_t empty_board = ~occupied_board;
   uint64_t test_board = 0x800;
   vector<uint64_t> moves = pawn_move_generator(0x80000, test_board, white_to_move);
-  printBoard(moves.at(0));
+  print_board(moves.at(0));
   cout << endl;
-  printBoard(moves.at(1)); // valid double pawn moves
+  print_board(moves.at(1)); // valid double pawn moves
   return 0;
 }
 
