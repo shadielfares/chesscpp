@@ -31,6 +31,14 @@ There is also this lore to the gcc people think its called the GNU C Compiler bu
 
 Must have CMake installed, run `cmake --build build`
 
+## Commands
+
+- Build Libary
+    `cmake -B build / cmake --build build`
+- Run Tests
+    `ctest --test-dir build`
+
+
 ## Cool Architecture Idea that I disregarded to collapse the complexity of this project
 
 The idea is that you then have the engine implement inherit from this base class and implement the underlying functions but due to the underlying complexity I need to arrive at a working version fast and then add the abstractions
