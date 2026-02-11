@@ -6,6 +6,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 add_library(chess_lib STATIC
   src/boards/board.cpp
   src/pieces/pawn.cpp
+  src/boards/masks.cpp
 )
 target_include_directories(chess_lib PUBLIC ${CMAKE_SOURCE_DIR}/src)
 
