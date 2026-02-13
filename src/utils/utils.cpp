@@ -1,7 +1,7 @@
 #include <cstdint>
 #include <iostream>
 
-using namespace std;
+using std::cout, std::endl;
 
 #define get_bit(bitboard, square) (bitboard & (1ULL << square))
 

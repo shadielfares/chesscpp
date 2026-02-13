@@ -1,7 +1,7 @@
 #include "../boards/masks.h"
 #include <cstdint>
 #include <vector>
-using namespace std;
+using std::vector;
 
 /*
  * For Pawns you only have the following valid move types:

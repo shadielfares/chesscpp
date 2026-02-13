@@ -7,7 +7,7 @@
 #include <string>
 #include <vector>
 
-using namespace std;
+using std::string, std::vector, std::cin;
 
 /*
  * @param from is 6-bit square
