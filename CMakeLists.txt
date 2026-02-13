@@ -14,6 +14,6 @@ add_executable(chess src/main.cpp)
 target_link_libraries(chess PRIVATE chess_lib)
 
 enable_testing()
-add_executable(chess_tests tests/generators.cpp)
+add_executable(chess_tests tests/test.pawn.cpp)
 target_link_libraries(chess_tests PRIVATE chess_lib)
 add_test(NAME generators COMMAND chess_tests)
