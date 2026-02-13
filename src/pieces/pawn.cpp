@@ -58,11 +58,41 @@ vector<uint64_t> pawn_move_generator(uint64_t board, uint64_t pawn_board,
 vector<uint64_t> pawn_capture_generator(uint64_t enemy_board, uint64_t pawn_board, bool white_to_move) {
   uint64_t valid_left_captures, valid_right_captures;
   if (white_to_move) {
-    valid_right_captures = ((pawn_board & ~file_a) << 7) & enemy_board;
-    valid_left_captures = ((pawn_board & ~file_h) << 9) & enemy_board;
+    valid_right_captures = ((pawn_board & ~FILE_A) << 7) & enemy_board;
+    valid_left_captures = ((pawn_board & ~FILE_H) << 9) & enemy_board;
   } else {
-    valid_right_captures = ((pawn_board & ~file_h) >> 7) & enemy_board;
-    valid_left_captures = ((pawn_board & ~file_a) >> 9) & enemy_board;
+    valid_right_captures = ((pawn_board & ~FILE_H) >> 7) & enemy_board;
+    valid_left_captures = ((pawn_board & ~FILE_A) >> 9) & enemy_board;
   }
   return {valid_left_captures, valid_right_captures};
+}
+
+vector<uint64_t> en_passant_generator(uint64_t last_enemy_pawns, uint64_t current_enemy_pawns, uint64_t pawn_board, bool white_to_move) {
+  // ok something we can try is we only pass in en_passant valid moves and then check perform an & operation with pawns on RANK_4 for black and RANK_5 for white
+  // going to assume that we are tracking every single board and are storing a vector of all possible positions
+  uint64_t valid_left_en_passant_captures, valid_right_en_passant_captures;
+  if (white_to_move) {
+    uint64_t pawns_started_on_rank_7 = last_enemy_pawns & RANK_7;
+    uint64_t landed_on_rank_5 = current_enemy_pawns & RANK_5;
+    uint64_t double_moved = (pawns_started_on_rank_7 >> 16) & landed_on_rank_5;
+
+    uint64_t my_pawns_on_rank_5 = pawn_board & RANK_5;
+    uint64_t adjacent_left = (my_pawns_on_rank_5 & ~FILE_A) << 1;
+    uint64_t adjacent_right = (my_pawns_on_rank_5 & ~FILE_H) >> 1;
+
+    valid_left_en_passant_captures = (double_moved & adjacent_left) << 8;
+    valid_right_en_passant_captures = (double_moved & adjacent_right) << 8;
+  } else {
+    uint64_t pawns_started_on_rank_2 = last_enemy_pawns & RANK_2;
+    uint64_t landed_on_rank_4 = current_enemy_pawns & RANK_4;
+    uint64_t double_moved = (pawns_started_on_rank_2 << 16) & landed_on_rank_4;
+
+    uint64_t my_pawns_on_rank_4 = pawn_board & RANK_4;
+    uint64_t adjacent_left = (my_pawns_on_rank_4 & ~FILE_A) >> 1;
+    uint64_t adjacent_right = (my_pawns_on_rank_4 & ~FILE_H) << 1;
+
+    valid_left_en_passant_captures = (double_moved & adjacent_left) >> 8;
+    valid_right_en_passant_captures = (double_moved & adjacent_right) >> 8;
+  }
+  return {valid_left_en_passant_captures, valid_right_en_passant_captures};
 }
