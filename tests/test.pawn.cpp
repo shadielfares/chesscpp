@@ -19,14 +19,14 @@ bool _testDoubleValidPawnMoves(uint64_t board) {
 bool test_pawn_generator_from_game_start() {
   uint64_t board = w_pieces | b_pieces;
   vector<uint64_t> moves = pawn_move_generator(board, w_pieces, 1);
-  return _testSingleValidPawnMoves(moves.at(0)) & _testDoubleValidPawnMoves(moves.at(1));
+  return _testSingleValidPawnMoves(moves.at(0)) && _testDoubleValidPawnMoves(moves.at(1));
 }
 
 bool test_pawn_capture_generator(vector<uint64_t> valid_captures) {
   uint64_t valid_left_capture = 0x1000000000; // e5
   uint64_t valid_right_capture = 0x0;
 
-  return valid_left_capture == valid_captures.at(0) & valid_right_capture == valid_captures.at(1);
+  return valid_left_capture == valid_captures.at(0) && valid_right_capture == valid_captures.at(1);
 }
 
 bool test_pawn_capture() {
