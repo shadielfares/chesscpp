@@ -1,6 +1,6 @@
 #include "boards/board.h"
 #include "pieces/index.h"
-#include "utils/utils.cpp"
+#include "utils/utils.h"
 #include <cstdint>
 #include <vector>
 

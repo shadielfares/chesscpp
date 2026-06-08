@@ -1,3 +1,4 @@
+#include "gui.h"
 #include "boards/board_ops.h"
 #include "raylib.h"
 #include <cstdint>
@@ -53,7 +54,7 @@ static void draw_piece(const Texture2D &tex, Vector2 pos) {
   DrawTextureEx(tex, pos, 0.0f, TILE / SPRITE, WHITE);
 }
 
-int main() {
+void run_gui() {
   InitWindow(BOARD, BOARD, "chess++");
   SetTargetFPS(60);
 
@@ -136,10 +137,10 @@ int main() {
     for (int square = 0; square < 64; square++) {
       char symbol = state[square];
       if (symbol == '.' || square == picked) continue;
-      draw_piece(pieces[symbol], square_origin(square));
+      draw_piece(pieces.at(symbol), square_origin(square));
     }
     if (picked >= 0) {
-      draw_piece(pieces[state[picked]],
+      draw_piece(pieces.at(state[picked]),
                  {mouse.x - TILE / 2.0f, mouse.y - TILE / 2.0f});
     }
     if (promoting) {
@@ -150,7 +151,7 @@ int main() {
         DrawRectangle((int)o.x, (int)o.y, TILE, TILE, RAYWHITE);
         DrawRectangleLines((int)o.x, (int)o.y, TILE, TILE, DARK);
         char sym = promo_white ? promo_options[i] : (char)(promo_options[i] + 0x20);
-        draw_piece(pieces[sym], o);
+        draw_piece(pieces.at(sym), o);
       }
     }
 
@@ -159,5 +160,4 @@ int main() {
 
   for (auto &[symbol, tex] : pieces) UnloadTexture(tex);
   CloseWindow();
-  return 0;
 }
