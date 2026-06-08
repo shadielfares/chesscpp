@@ -18,11 +18,6 @@ using std::vector;
  * 6. Promotion (Flag)
  */
 
-struct MoveInfo {
-  // I believe this is a 16 bit uint_64 that accounts for all the move types of
-  // all pieces
-};
-
 #define RANK_4 0xff000000ULL;
 #define RANK_5 0xff00000000ULL;
 
@@ -78,8 +73,8 @@ vector<uint64_t> en_passant_generator(uint64_t last_enemy_pawns, uint64_t curren
     uint64_t double_moved = (pawns_started_on_rank_7 >> 16) & landed_on_rank_5;
 
     uint64_t my_pawns_on_rank_5 = pawn_board & RANK_5;
-    uint64_t adjacent_left = (my_pawns_on_rank_5 & ~FILE_A) << 1;
-    uint64_t adjacent_right = (my_pawns_on_rank_5 & ~FILE_H) >> 1;
+    uint64_t adjacent_left = (my_pawns_on_rank_5 & ~FILE_H) << 1;
+    uint64_t adjacent_right = (my_pawns_on_rank_5 & ~FILE_A) >> 1;
 
     valid_left_en_passant_captures = (double_moved & adjacent_left) << 8;
     valid_right_en_passant_captures = (double_moved & adjacent_right) << 8;

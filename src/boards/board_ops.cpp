@@ -80,8 +80,9 @@ bool make_move(int from, int to, char promotion) {
   uint64_t from_mask = bit(from);
   uint64_t to_mask = bit(to);
 
+  auto boards = piece_boards();
   PieceBoard *moving = nullptr;
-  for (PieceBoard &entry : piece_boards())
+  for (PieceBoard &entry : boards)
     if (*entry.bits & from_mask) {
       moving = &entry;
       break;
@@ -99,7 +100,7 @@ bool make_move(int from, int to, char promotion) {
   }
 
   // normal capture: clear any enemy piece sitting on the target
-  for (PieceBoard &entry : piece_boards())
+  for (PieceBoard &entry : boards)
     if (entry.white != white) *entry.bits &= ~to_mask;
 
   *moving->bits &= ~from_mask;
