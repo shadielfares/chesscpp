@@ -1,4 +1,5 @@
 #include "../boards/masks.h"
+#include "index.h"
 #include <cstdint>
 #include <vector>
 using std::vector;
@@ -95,4 +96,17 @@ vector<uint64_t> en_passant_generator(uint64_t last_enemy_pawns, uint64_t curren
     valid_right_en_passant_captures = (double_moved & adjacent_right) >> 8;
   }
   return {valid_left_en_passant_captures, valid_right_en_passant_captures};
+}
+
+// packs the three pawn generators into one PawnMoves struct.
+// pass 0 for the en-passant history when there's no prior move to consider.
+PawnMoves pawn_moves(uint64_t occupied, uint64_t enemy_board,
+                     uint64_t last_enemy_pawns, uint64_t current_enemy_pawns,
+                     uint64_t pawn_board, bool white_to_move) {
+  vector<uint64_t> advance = pawn_move_generator(occupied, pawn_board, white_to_move);
+  vector<uint64_t> capture = pawn_capture_generator(enemy_board, pawn_board, white_to_move);
+  vector<uint64_t> ep = en_passant_generator(last_enemy_pawns, current_enemy_pawns, pawn_board, white_to_move);
+
+  return {advance.at(0), advance.at(1), capture.at(0),
+          capture.at(1), ep.at(0),      ep.at(1)};
 }
