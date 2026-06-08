@@ -43,7 +43,8 @@ Must have CMake installed, run `cmake --build build`
 
 ## Commands
 
-- Build Libary
+- Build Library
+     `cmake -B build / cmake --build build`
     `cmake -B build / cmake --build build`
 - Run Tests
     `ctest --test-dir build`
