@@ -1,6 +1,6 @@
 #include "renderer/gui.h"
 
 int main() {
-  run_gui();
+  gui_handler();
   return 0;
 }

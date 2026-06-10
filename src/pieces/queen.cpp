@@ -1,5 +1,5 @@
 // the queen is a bishop and a rook in one: union of both ray sets.
-#include "../boards/board.h"
+#include "../boards/bitboards.h"
 #include "index.h"
 #include <cstdint>
 

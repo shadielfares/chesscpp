@@ -14,7 +14,7 @@ set(BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(raylib)
 
 add_library(chess_lib STATIC
-  src/boards/board.cpp
+  src/boards/bitboards.cpp
   src/pieces/pawn.cpp
   src/pieces/bishop.cpp
   src/pieces/rook.cpp
@@ -27,6 +27,14 @@ add_library(chess_lib STATIC
 )
 target_include_directories(chess_lib PUBLIC ${CMAKE_SOURCE_DIR}/src)
 
-add_executable(chess src/main.cpp src/renderer/gui.cpp)
+add_executable(chess
+  src/main.cpp
+  src/renderer/gui.cpp
+  src/renderer/geometry.cpp
+  src/renderer/model.cpp
+  src/renderer/controller.cpp
+  src/renderer/view.cpp
+  src/renderer/textures.cpp
+)
 target_link_libraries(chess PRIVATE chess_lib raylib)
 target_compile_definitions(chess PRIVATE ASSETS_PATH="${CMAKE_SOURCE_DIR}/assets")

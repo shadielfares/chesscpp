@@ -3,12 +3,10 @@
 #include "index.h"
 #include <cstdint>
 
-namespace {
 const uint64_t SHORT_PATH_WHITE = bit(F1) | bit(G1);
 const uint64_t LONG_PATH_WHITE = bit(B1) | bit(C1) | bit(D1);
 const uint64_t SHORT_PATH_BLACK = bit(F8) | bit(G8);
 const uint64_t LONG_PATH_BLACK = bit(B8) | bit(C8) | bit(D8);
-} // namespace
 
 // @param king the king bitboard
 // @param occupied every piece on the board
