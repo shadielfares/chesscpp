@@ -22,8 +22,10 @@ add_library(chess_lib STATIC
   src/pieces/knight.cpp
   src/pieces/king.cpp
   src/boards/masks.cpp
-  src/boards/board_ops.cpp
-  src/utils/utils.cpp
+  src/boards/position.cpp
+  src/boards/make_move.cpp
+  src/boards/attacks.cpp
+  src/boards/movegen.cpp
 )
 target_include_directories(chess_lib PUBLIC ${CMAKE_SOURCE_DIR}/src)
 
