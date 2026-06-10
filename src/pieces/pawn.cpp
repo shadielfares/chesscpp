@@ -72,9 +72,9 @@ vector<uint64_t> en_passant_generator(uint64_t last_enemy_pawns, uint64_t curren
     uint64_t landed_on_rank_5 = current_enemy_pawns & RANK_5;
     uint64_t double_moved = (pawns_started_on_rank_7 >> 16) & landed_on_rank_5;
 
-    uint64_t my_pawns_on_rank_5 = pawn_board & RANK_5;
-    uint64_t adjacent_left = (my_pawns_on_rank_5 & ~FILE_H) << 1;
-    uint64_t adjacent_right = (my_pawns_on_rank_5 & ~FILE_A) >> 1;
+    uint64_t pawns_on_rank_5 = pawn_board & RANK_5;
+    uint64_t adjacent_left = (pawns_on_rank_5 & ~FILE_H) << 1;
+    uint64_t adjacent_right = (pawns_on_rank_5 & ~FILE_A) >> 1;
 
     valid_left_en_passant_captures = (double_moved & adjacent_left) << 8;
     valid_right_en_passant_captures = (double_moved & adjacent_right) << 8;
@@ -83,9 +83,9 @@ vector<uint64_t> en_passant_generator(uint64_t last_enemy_pawns, uint64_t curren
     uint64_t landed_on_rank_4 = current_enemy_pawns & RANK_4;
     uint64_t double_moved = (pawns_started_on_rank_2 << 16) & landed_on_rank_4;
 
-    uint64_t my_pawns_on_rank_4 = pawn_board & RANK_4;
-    uint64_t adjacent_left = (my_pawns_on_rank_4 & ~FILE_A) >> 1;
-    uint64_t adjacent_right = (my_pawns_on_rank_4 & ~FILE_H) << 1;
+    uint64_t pawns_on_rank_4 = pawn_board & RANK_4;
+    uint64_t adjacent_left = (pawns_on_rank_4 & ~FILE_A) >> 1;
+    uint64_t adjacent_right = (pawns_on_rank_4 & ~FILE_H) << 1;
 
     valid_left_en_passant_captures = (double_moved & adjacent_left) >> 8;
     valid_right_en_passant_captures = (double_moved & adjacent_right) >> 8;

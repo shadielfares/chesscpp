@@ -1,4 +1,4 @@
-#include "boards/board.h"
+#include "boards/bitboards.h"
 #include "pieces/index.h"
 #include "utils/utils.h"
 #include <cstdint>

@@ -1,16 +1,18 @@
-#include "boards/board.h"
+#include "boards/bitboards.h"
 #include "boards/board_ops.h"
+#include "boards/masks.h"
 #include "boards/squares.h"
 #include "pieces/index.h"
 #include <array>
 #include <bit>
+#include <cctype>
 #include <cstdint>
 #include <string>
 
 using std::array;
 using std::string;
 
-namespace {
+constexpr int CASTLE_FILE_SPAN = 2; // files the king crosses when castling
 
 struct PieceBoard {
   uint64_t *bits;
@@ -51,13 +53,11 @@ void recompute_aggregates() {
              b_queen_board | b_king_board;
 }
 
-bool valid_square(int square) { return square >= 0 && square < 64; }
-
-} // namespace
+bool valid_square(int square) { return square >= 0 && square < BOARD_SQUARES; }
 
 // index i maps to square i; '.' for empty, piece letter otherwise
 string board_state() {
-  string state(64, '.');
+  string state(BOARD_SQUARES, '.');
   for (const PieceBoard &entry : piece_boards()) {
     uint64_t bits = *entry.bits;
     while (bits) {
@@ -69,12 +69,13 @@ string board_state() {
   return state;
 }
 
-bool is_white_to_move() { return white_to_move; }
-
-// applies a move for the side to move, handling captures, en passant,
-// castling, promotion, and rights/turn updates. `promotion` picks the promoted
-// piece (Q/R/B/N) when a pawn reaches the far rank.
-bool make_move(int from, int to, char promotion) {
+// applies a move for the side to move. the flag carries the move's semantics
+// (capture, en passant, castle, double push, promotion) so nothing is
+// re-derived here.
+bool make_move(CMove move) {
+  int from = move.get_from();
+  int to = move.get_to();
+  int flag = move.get_flag();
   if (!valid_square(from) || !valid_square(to) || from == to) return false;
 
   uint64_t from_mask = bit(from);
@@ -90,49 +91,47 @@ bool make_move(int from, int to, char promotion) {
   if (!moving || moving->white != white_to_move) return false;
 
   bool white = moving->white;
-  char type = moving->symbol & ~0x20;
+  char type = std::toupper((unsigned char)moving->symbol);
   int next_en_passant = -1;
 
-  // en passant: pawn lands on the ep square, remove the pawn it passed
-  if (type == 'P' && to == en_passant_square) {
-    uint64_t captured = bit(white ? to - 8 : to + 8);
+  // en passant: remove the pawn that was passed; otherwise clear any enemy
+  // piece sitting on the target square
+  if (flag == FLAG_EP_CAPTURE) {
+    uint64_t captured = bit(white ? to - BOARD_SIZE : to + BOARD_SIZE);
     (white ? b_pawn_board : w_pawn_board) &= ~captured;
+  } else if (move.is_capture()) {
+    for (PieceBoard &entry : boards)
+      if (entry.white != white) *entry.bits &= ~to_mask;
   }
-
-  // normal capture: clear any enemy piece sitting on the target
-  for (PieceBoard &entry : boards)
-    if (entry.white != white) *entry.bits &= ~to_mask;
 
   *moving->bits &= ~from_mask;
   *moving->bits |= to_mask;
 
-  // promotion: pawn reaching the far rank becomes the chosen piece
-  if (type == 'P') {
-    int rank = to / 8;
-    if ((white && rank == 7) || (!white && rank == 0)) {
-      *moving->bits &= ~to_mask;
-      uint64_t *promoted;
-      switch (promotion & ~0x20) {
-      case 'N': promoted = white ? &w_knight_board : &b_knight_board; break;
-      case 'B': promoted = white ? &w_bishop_board : &b_bishop_board; break;
-      case 'R': promoted = white ? &w_rook_board : &b_rook_board; break;
-      default: promoted = white ? &w_queen_board : &b_queen_board; break;
-      }
-      *promoted |= to_mask;
+  // promotion: the pawn that just landed becomes the chosen piece
+  if (move.is_promotion()) {
+    *moving->bits &= ~to_mask;
+    uint64_t *promoted;
+    switch (move.promotion_piece()) {
+    case 'N': promoted = white ? &w_knight_board : &b_knight_board; break;
+    case 'B': promoted = white ? &w_bishop_board : &b_bishop_board; break;
+    case 'R': promoted = white ? &w_rook_board : &b_rook_board; break;
+    default: promoted = white ? &w_queen_board : &b_queen_board; break;
     }
+    *promoted |= to_mask;
   }
 
-  // castling: king jumped two files, hop the rook over it
-  if (type == 'K') {
-    if (from == E1 && to == G1) w_rook_board = (w_rook_board & ~bit(H1)) | bit(F1);
-    else if (from == E1 && to == C1) w_rook_board = (w_rook_board & ~bit(A1)) | bit(D1);
-    else if (from == E8 && to == G8) b_rook_board = (b_rook_board & ~bit(H8)) | bit(F8);
-    else if (from == E8 && to == C8) b_rook_board = (b_rook_board & ~bit(A8)) | bit(D8);
+  // castling: hop the rook over the king it just jumped past
+  if (flag == FLAG_CASTLE_SHORT) {
+    if (white) w_rook_board = (w_rook_board & ~bit(H1)) | bit(F1);
+    else b_rook_board = (b_rook_board & ~bit(H8)) | bit(F8);
+  } else if (flag == FLAG_CASTLE_LONG) {
+    if (white) w_rook_board = (w_rook_board & ~bit(A1)) | bit(D1);
+    else b_rook_board = (b_rook_board & ~bit(A8)) | bit(D8);
   }
 
   // double pawn push arms en passant for the square it skipped
-  if (type == 'P' && (to - from == 16 || from - to == 16))
-    next_en_passant = white ? from + 8 : from - 8;
+  if (flag == FLAG_DOUBLE_PUSH)
+    next_en_passant = white ? from + BOARD_SIZE : from - BOARD_SIZE;
 
   // castling rights: king/rook leaving home, or a home rook captured
   if (type == 'K') {
@@ -149,8 +148,6 @@ bool make_move(int from, int to, char promotion) {
   white_to_move = !white_to_move;
   return true;
 }
-
-namespace {
 
 // all squares the given side attacks. team_board = 0 makes each generator
 // report its full attack set (rays stop at the first blocker, inclusive).
@@ -180,6 +177,11 @@ uint64_t squares_attacked_by(bool by_white) {
   return attacks;
 }
 
+struct CastleOption {
+  int target;
+  uint64_t king_path;
+};
+
 // castle targets whose whole king path (start, transit, destination) is free of
 // attack, so the king never starts in, passes through, or lands on check.
 uint64_t castle_targets(uint64_t occupied, bool white) {
@@ -189,10 +191,6 @@ uint64_t castle_targets(uint64_t occupied, bool white) {
   if (!castles) return 0;
 
   uint64_t attacked = squares_attacked_by(!white);
-  struct CastleOption {
-    int target;
-    uint64_t king_path;
-  };
   const CastleOption options[4] = {
       {G1, bit(E1) | bit(F1) | bit(G1)},
       {C1, bit(E1) | bit(D1) | bit(C1)},
@@ -217,7 +215,7 @@ uint64_t pseudo_targets(int square, bool white) {
 
   char type = 0;
   for (const PieceBoard &entry : piece_boards())
-    if (*entry.bits & piece) type = entry.symbol & ~0x20; // uppercase
+    if (*entry.bits & piece) type = std::toupper((unsigned char)entry.symbol);
 
   switch (type) {
   case 'P': {
@@ -281,46 +279,99 @@ void restore_state(const SavedState &saved) {
   recompute_aggregates();
 }
 
-} // namespace
+// tags a pawn's target bitboard with flags: promotions expand to four moves,
+// the ep square becomes an ep capture, a two-rank jump is a double push.
+void add_pawn_moves(MoveList &moves, int from, uint64_t targets, bool white) {
+  uint64_t enemy = white ? b_pieces : w_pieces;
+  while (targets) {
+    int to = std::countr_zero(targets);
+    targets &= targets - 1;
+
+    bool promotion = (white && (bit(to) & RANK_8)) || (!white && (bit(to) & RANK_1));
+    bool capture = bit(to) & enemy;
+    int step = to > from ? to - from : from - to;
+
+    if (promotion && capture) {
+      moves.add(CMove(from, to, FLAG_PROMO_Q_CAPTURE));
+      moves.add(CMove(from, to, FLAG_PROMO_R_CAPTURE));
+      moves.add(CMove(from, to, FLAG_PROMO_B_CAPTURE));
+      moves.add(CMove(from, to, FLAG_PROMO_N_CAPTURE));
+    } else if (promotion) {
+      moves.add(CMove(from, to, FLAG_PROMO_Q));
+      moves.add(CMove(from, to, FLAG_PROMO_R));
+      moves.add(CMove(from, to, FLAG_PROMO_B));
+      moves.add(CMove(from, to, FLAG_PROMO_N));
+    } else if (to == en_passant_square) {
+      moves.add(CMove(from, to, FLAG_EP_CAPTURE));
+    } else if (capture) {
+      moves.add(CMove(from, to, FLAG_CAPTURE));
+    } else if (step == 2 * BOARD_SIZE) {
+      moves.add(CMove(from, to, FLAG_DOUBLE_PUSH));
+    } else {
+      moves.add(CMove(from, to, FLAG_QUIET));
+    }
+  }
+}
+
+// tags a non-pawn piece's target bitboard. a king landing two files away is a
+// castle (g-file short, c-file long).
+void add_piece_moves(MoveList &moves, int from, uint64_t targets, bool white,
+                     bool is_king) {
+  uint64_t enemy = white ? b_pieces : w_pieces;
+  while (targets) {
+    int to = std::countr_zero(targets);
+    targets &= targets - 1;
+
+    int file_step = file_of(to) - file_of(from);
+    if (file_step < 0) file_step = -file_step;
+
+    if (is_king && file_step == CASTLE_FILE_SPAN)
+      moves.add(CMove(from, to, (to == G1 || to == G8) ? FLAG_CASTLE_SHORT
+                                                        : FLAG_CASTLE_LONG));
+    else if (bit(to) & enemy)
+      moves.add(CMove(from, to, FLAG_CAPTURE));
+    else
+      moves.add(CMove(from, to, FLAG_QUIET));
+  }
+}
+
+// every pseudo-legal move for the side to move, each tagged with its flag.
+// king safety is filtered in legal_moves.
+MoveList generate_pseudo(bool white) {
+  MoveList moves;
+  for (const PieceBoard &entry : piece_boards()) {
+    if (entry.white != white) continue;
+    char type = std::toupper((unsigned char)entry.symbol);
+    uint64_t bits = *entry.bits;
+    while (bits) {
+      int from = std::countr_zero(bits);
+      bits &= bits - 1;
+      uint64_t targets = pseudo_targets(from, white);
+      if (type == 'P') add_pawn_moves(moves, from, targets, white);
+      else add_piece_moves(moves, from, targets, white, type == 'K');
+    }
+  }
+  return moves;
+}
 
 bool in_check(bool white) {
   uint64_t king = white ? w_king_board : b_king_board;
   return king & squares_attacked_by(!white);
 }
 
-// legal target squares for the piece on `square`: pseudo-moves filtered to
-// those that don't leave the mover's own king in check. only the side to move
-// has legal moves.
-uint64_t legal_moves(int square) {
-  if (!valid_square(square)) return 0;
-  uint64_t piece = bit(square);
-
-  bool white = false;
-  bool found = false;
-  for (const PieceBoard &entry : piece_boards())
-    if (*entry.bits & piece) {
-      white = entry.white;
-      found = true;
-    }
-  if (!found || white != white_to_move) return 0;
-
-  uint64_t targets = pseudo_targets(square, white);
-  uint64_t legal = 0;
-  while (targets) {
-    int to = std::countr_zero(targets);
+// legal moves for the side to move: pseudo moves filtered to those that don't
+// leave the mover's own king in check. an empty list means game over
+// (checkmate if currently in check, otherwise stalemate).
+MoveList legal_moves() {
+  bool white = white_to_move;
+  MoveList pseudo = generate_pseudo(white);
+  MoveList legal;
+  for (int i = 0; i < pseudo.count; i++) {
+    CMove move = pseudo.moves[i];
     SavedState saved = save_state();
-    make_move(square, to);
-    if (!in_check(white)) legal |= bit(to);
+    make_move(move);
+    if (!in_check(white)) legal.add(move);
     restore_state(saved);
-    targets &= targets - 1;
   }
   return legal;
-}
-
-// true while the side to move has at least one legal move; false = game over
-// (checkmate if currently in check, otherwise stalemate).
-bool has_legal_move() {
-  for (int square = 0; square < 64; square++)
-    if (legal_moves(square)) return true;
-  return false;
 }

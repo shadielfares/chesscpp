@@ -8,4 +8,10 @@ enum Square : int {
   A8 = 56, B8 = 57, C8 = 58, D8 = 59, E8 = 60, F8 = 61, G8 = 62, H8 = 63,
 };
 
+constexpr int BOARD_SIZE = 8;
+constexpr int BOARD_SQUARES = BOARD_SIZE * BOARD_SIZE;
+
+constexpr int file_of(int square) { return square % BOARD_SIZE; }
+constexpr int rank_of(int square) { return square / BOARD_SIZE; }
+
 constexpr uint64_t bit(int square) { return 1ULL << square; }
