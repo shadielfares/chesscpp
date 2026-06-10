@@ -1,6 +1,5 @@
 #include "boards/bitboards.h"
 #include "pieces/index.h"
-#include "utils/utils.h"
 #include <cstdint>
 #include <vector>
 
@@ -116,7 +115,6 @@ bool test_black_en_passant() {
   uint64_t black_pawns = 0x4000000;         // c4
   uint64_t valid_ep = 0x20000;              // b3
   vector<uint64_t> ep_moves = en_passant_generator(white_pawn_start, white_pawn_advanced, black_pawns, 0);
-  print_board(ep_moves.at(0));
   return ep_moves.at(0) == valid_ep;
 }
 
