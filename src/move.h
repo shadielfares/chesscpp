@@ -1,4 +1,5 @@
 #pragma once
+#include <cassert>
 #include <cstdint>
 
 // A move's flag occupies bits 12-15 of the packed move. Within the flag,
@@ -69,6 +70,9 @@ struct MoveList {
   CMove moves[CAPACITY];
   int count = 0;
 
-  void add(CMove move) { moves[count++] = move; }
+  void add(CMove move) {
+    assert(count < CAPACITY); // generation bug if a position exceeds 218 moves
+    moves[count++] = move;
+  }
   bool empty() const { return count == 0; }
 };
