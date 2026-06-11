@@ -32,3 +32,6 @@ Must have CMake installed, run `cmake --build build`
     `ctest --test-dir build`
     `cmake -B build; ./build/chess_tests`
 
+--- 
+
+read more here [notion](https://lavish-turret-32a.notion.site/chesscpp-2ad8e5944ccf80659f9be165cef4a1bf?source=copy_link)
