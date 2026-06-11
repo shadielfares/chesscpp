@@ -16,3 +16,6 @@ extern uint64_t b_queen_board;
 
 extern uint64_t w_king_board;
 extern uint64_t b_king_board;
+
+extern uint64_t w_pieces;
+extern uint64_t b_pieces;

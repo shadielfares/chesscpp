@@ -1,5 +1,15 @@
 # chess-
 
+Case:
+PascalCase for classes
+snake_case for functions
+
+## disclaimer: use of ai in this project
+
+this project was a passionate project of mine and i wanted to maximize learning value. use of ai was used only in cmake config and in commenting, no real source code or business logic as been written by any ai tools.
+
+additionally, whenever I was super lost I would ask GPT for some help but no code snippets were copied from its generation.
+
 i want to build this funny chess game in c++, no ai used for this project at all, every single line will be written by me from scratch.
 
 some libraries we're using:
@@ -30,6 +40,15 @@ Oh also for some reason I forget that for compiling these cpp files use g++, and
 There is also this lore to the gcc people think its called the GNU C Compiler but I'm pretty sure it changed to GNU Compiler Collection because of this absolutely radical invention called the linker which is the reason why you can have language agnostic projects and use modules written in different programming languages in the same individual server or application.
 
 Must have CMake installed, run `cmake --build build`
+
+## Commands
+
+- Build Library
+    `cmake -B build / cmake --build build`
+- Run Tests
+    `ctest --test-dir build`
+    `cmake -B build; ./build/chess_tests`
+
 
 ## Cool Architecture Idea that I disregarded to collapse the complexity of this project
 
