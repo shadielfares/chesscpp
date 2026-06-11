@@ -1,37 +1,20 @@
 # chess-
 
-Case:
-PascalCase for classes
-snake_case for functions
+https://github.com/user-attachments/assets/f7d280ee-7275-4694-ace5-479dc3fe8de6
 
 ## disclaimer: use of ai in this project
 
-this project was a passionate project of mine and i wanted to maximize learning value. use of ai was used only in cmake config and in commenting, no real source code or business logic as been written by any ai tools.
+this project was a passionate project of mine and i wanted to maximize learning value. so here's the breakdown of what's mine vs ai assisted.
+
+within the renderer/ package, other than the usage of raylib and the MVC pattern and finding the chess sprites, much of that code was ai written, except any external masks or bitboards which i hand wrote.
+
+anything within board/ and pieces/ was 80-90% hand written, with the initial strategy developed by myself and the occasional code cleanup by an LLM.
 
 additionally, whenever I was super lost I would ask GPT for some help but no code snippets were copied from its generation.
 
-i want to build this funny chess game in c++, no ai used for this project at all, every single line will be written by me from scratch.
-
 some libraries we're using:
 
-someone already made a gui with that and honestly, making my own chess platform sounds pretty dope so i'm thinking of just making this a giga fast api
-and then using one of the new frameworks for the client-side
-
-will try aditya's cpp web-framework craft for this
-
-Step 1. Mock out classes and class architecture, file architecture, create tickets.
-Step 2. Pick up tickets related to backend architecture.
-Step 3. ML-component in C++
-Step 4. Client-side stuff
-
-So I'm going to implement something similar, states to consider:
-1. Start Game
-2. Move:
-    a. Select Piece
-    b. Select Destination
-3. Switch Player
-4. Check Game Conditions
-5. End Game
+raylib for the native gui, real piece textures and mouse drag-to-move, pure c++ with no js/embind.
 
 # Build
 
@@ -49,31 +32,3 @@ Must have CMake installed, run `cmake --build build`
     `ctest --test-dir build`
     `cmake -B build; ./build/chess_tests`
 
-
-## Cool Architecture Idea that I disregarded to collapse the complexity of this project
-
-The idea is that you then have the engine implement inherit from this base class and implement the underlying functions but due to the underlying complexity I need to arrive at a working version fast and then add the abstractions
-
-```
-class CGameState {
-public:
-  void Init();
-  void Move();
-  void Switch();
-  void Check();
-  void End();
-};
-
-class CGameEngine {
-public:
-  void Init();
-  void Move();
-  void Switch();
-  void Check();
-  void End();
-
-private:
-  vector<CGameState *> states;
-  bool m_running;
-};
-```
